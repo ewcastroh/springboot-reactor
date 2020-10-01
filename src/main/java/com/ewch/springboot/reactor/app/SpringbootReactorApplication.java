@@ -1,6 +1,8 @@
 package com.ewch.springboot.reactor.app;
 
+import com.ewch.springboot.reactor.app.model.Comment;
 import com.ewch.springboot.reactor.app.model.User;
+import com.ewch.springboot.reactor.app.model.UserComment;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +29,24 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 		// iterableFlux();
 		// flatmatExample();
 		// flatmatFromUserToString();
-		collectMonoWithInnerList();
+		// collectMonoWithInnerList();
+		flatMapUserComment();
+	}
+
+	public void flatMapUserComment() {
+		Mono<User> userMono = Mono.fromCallable(() -> new User("John", "Doe"));
+		Mono<Comment> commentMono = Mono.fromCallable(() -> {
+			Comment comment = new Comment();
+			comment.addComment("Comment 1");
+			comment.addComment("Comment 2");
+			comment.addComment("Comment 3");
+			comment.addComment("Comment 4");
+			return comment;
+		});
+
+		userMono.flatMap(user -> commentMono
+			.map(comment -> new UserComment(user, comment)))
+		.subscribe(userComment -> LOGGER.info(userComment.toString()));
 	}
 
 	public void collectMonoWithInnerList() {
