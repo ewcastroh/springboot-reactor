@@ -32,7 +32,15 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 		// collectMonoWithInnerList();
 		// flatMapUserComment();
 		// zipWithUserComment();
-		zipWithUserCommentWay2();
+		// zipWithUserCommentWay2();
+		zipWithRange();
+	}
+
+	public void zipWithRange() {
+		Flux.just(1, 2, 3, 4, 5)
+		.map(item -> item * 2)
+		.zipWith(Flux.range(0, 5), (one, two) -> String.format("First Flux: %d :: Second Flux: %d", one, two))
+		.subscribe(text -> LOGGER.info(text));
 	}
 
 	public void zipWithUserCommentWay2() {
