@@ -3,6 +3,7 @@ package com.ewch.springboot.reactor.app;
 import com.ewch.springboot.reactor.app.model.Comment;
 import com.ewch.springboot.reactor.app.model.User;
 import com.ewch.springboot.reactor.app.model.UserComment;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +34,25 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 		// flatMapUserComment();
 		// zipWithUserComment();
 		// zipWithUserCommentWay2();
-		zipWithRange();
+		// zipWithRange();
+		// interval();
+		delayElements();
+	}
+
+	public void delayElements() throws InterruptedException {
+		Flux<Integer> range = Flux.range(1, 12)
+			.delayElements(Duration.ofSeconds(1))
+			.doOnNext(item -> LOGGER.info(item.toString()));
+		range.subscribe();
+		Thread.sleep(13000);
+	}
+
+	public void interval() {
+		Flux<Integer> range = Flux.range(1, 12);
+		Flux<Long> delay = Flux.interval(Duration.ofSeconds(1));
+		range.zipWith(delay, (ran, del) -> ran)
+			.doOnNext(item -> LOGGER.info(item.toString()))
+		.blockLast();
 	}
 
 	public void zipWithRange() {
