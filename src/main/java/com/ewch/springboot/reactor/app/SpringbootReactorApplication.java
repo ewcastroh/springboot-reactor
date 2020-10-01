@@ -10,6 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @SpringBootApplication
 public class SpringbootReactorApplication implements CommandLineRunner {
@@ -22,13 +23,49 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+		// iterableFlux();
+		flatmatExample();
+	}
+
+	public void flatmatExample() throws Exception {
+		String names[] = {"Eimer Castro", "Alejandra Marin", "Manuel Castro", "Luisa Hincapie", "Duvan Castro", "Bruce Lee", "Bruce Willis"};
+		List<String> namesList = new ArrayList<>(Arrays.asList(names));
+
+		Flux.fromIterable(namesList)
+			// Using map operator to convert a String in a User object
+			.map(name -> new User(name.split(" ")[0].toUpperCase(), name.split(" ")[1].toUpperCase()))
+			// Using filter operator to get users with a pattern
+			.flatMap(user -> {
+				if (user.getFirstName().equalsIgnoreCase("bruce")) {
+					return Mono.just(user);
+				} else {
+					return Mono.empty();
+				}
+			})
+			// Using map operator to transform a User's attribute value into another one (String to lowercase)
+			.map(user -> {
+				user.setFirstName(user.getFirstName().toLowerCase());
+				return user;
+			})
+			// Subscribing users because observables are immutable. To get a new data it's important create a new object.
+			.subscribe(
+				// Main method  to execute in callback
+				user -> LOGGER.info(user.toString()),
+				// Error handler
+				error -> LOGGER.error(error.getMessage()),
+				// onComplete method to execute when callback finishes
+				() -> LOGGER.info("Execution has finished successfully!")
+			);
+	}
+
+	public void iterableFlux() throws Exception {
 		String names[] = {"Eimer Castro", "Alejandra Marin", "Manuel Castro", "Luisa Hincapie", "Duvan Castro", "Bruce Lee", "Bruce Willis"};
 		List<String> namesList = new ArrayList<String>(Arrays.asList(names));
 
 		// Flux<String> namesStream = Flux.just(names);
 		Flux<String> namesStream = Flux.fromIterable(namesList);
 
-			// Using map operator to convert a String in a User object
+		// Using map operator to convert a String in a User object
 		Flux<User> users = namesStream.map(name -> new User(name.split(" ")[0].toUpperCase(), name.split(" ")[1].toUpperCase()))
 			// Using filter operator to get users with a pattern
 			.filter(user -> user.getFirstName().equalsIgnoreCase("Bruce"))
@@ -42,7 +79,7 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 			.map(user -> {
 				user.setFirstName(user.getFirstName().toLowerCase());
 				return user;
-				});
+			});
 
 		// Subscribing namesStream because observables are immutable. To get a new data it's important create a new object.
 		namesStream.subscribe(
