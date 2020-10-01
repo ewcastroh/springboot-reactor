@@ -30,7 +30,46 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 		// flatmatExample();
 		// flatmatFromUserToString();
 		// collectMonoWithInnerList();
-		flatMapUserComment();
+		// flatMapUserComment();
+		// zipWithUserComment();
+		zipWithUserCommentWay2();
+	}
+
+	public void zipWithUserCommentWay2() {
+		Mono<User> userMono = Mono.fromCallable(() -> new User("John", "Doe"));
+		Mono<Comment> commentMono = Mono.fromCallable(() -> {
+			Comment comment = new Comment();
+			comment.addComment("Comment 1");
+			comment.addComment("Comment 2");
+			comment.addComment("Comment 3");
+			comment.addComment("Comment 4");
+			return comment;
+		});
+
+		Mono<UserComment> userCommentMono = userMono
+			.zipWith(commentMono)
+			.map(tuple -> {
+				User user = tuple.getT1();
+				Comment comment = tuple.getT2();
+				return new UserComment(user, comment);
+			});
+		userCommentMono.subscribe(userComment -> LOGGER.info(userComment.toString()));
+	}
+
+	public void zipWithUserComment() {
+		Mono<User> userMono = Mono.fromCallable(() -> new User("John", "Doe"));
+		Mono<Comment> commentMono = Mono.fromCallable(() -> {
+			Comment comment = new Comment();
+			comment.addComment("Comment 1");
+			comment.addComment("Comment 2");
+			comment.addComment("Comment 3");
+			comment.addComment("Comment 4");
+			return comment;
+		});
+
+		Mono<UserComment> userCommentMono = userMono
+			.zipWith(commentMono, (user, comment) -> new UserComment(user, comment));
+		userCommentMono.subscribe(userComment -> LOGGER.info(userComment.toString()));
 	}
 
 	public void flatMapUserComment() {
