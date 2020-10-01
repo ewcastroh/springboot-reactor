@@ -19,15 +19,17 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		String names[] = {"Eimer", "Alejandra", "Manuel", "Luisa", "Duvan"};
+		String names[] = {"Eimer Castro", "Alejandra Marin", "Manuel Castro", "Luisa Hincapie", "Duvan Castro", "Bruce Lee", "Bruce Willis"};
 		Flux<User> namesStream = Flux.just(names)
 			// Using map operator to convert a String in a User object
-			.map(name -> new User(name.toUpperCase(), null))
+			.map(name -> new User(name.split(" ")[0].toUpperCase(), name.split(" ")[1].toUpperCase()))
+			// Using filter operator to get users with a pattern
+			.filter(user -> user.getFirstName().equalsIgnoreCase("Bruce"))
 			.doOnNext(user -> {
 				if(user == null) {
 					throw new RuntimeException("Names cannot be empty.");
 				}
-				System.out.println(user.getFirstName());
+				System.out.println(user.getFirstName().concat(" ").concat(user.getLastName()));
 			})
 			// Using map operator to transform a User's attribute value into another one (String to lowercase)
 			.map(user -> {
