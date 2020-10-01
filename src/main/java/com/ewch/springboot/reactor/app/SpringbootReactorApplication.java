@@ -1,6 +1,9 @@
 package com.ewch.springboot.reactor.app;
 
 import com.ewch.springboot.reactor.app.model.User;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -20,7 +23,11 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		String names[] = {"Eimer Castro", "Alejandra Marin", "Manuel Castro", "Luisa Hincapie", "Duvan Castro", "Bruce Lee", "Bruce Willis"};
-		Flux<String> namesStream = Flux.just(names);
+		List<String> namesList = new ArrayList<String>(Arrays.asList(names));
+
+		// Flux<String> namesStream = Flux.just(names);
+		Flux<String> namesStream = Flux.fromIterable(namesList);
+
 			// Using map operator to convert a String in a User object
 		Flux<User> users = namesStream.map(name -> new User(name.split(" ")[0].toUpperCase(), name.split(" ")[1].toUpperCase()))
 			// Using filter operator to get users with a pattern
