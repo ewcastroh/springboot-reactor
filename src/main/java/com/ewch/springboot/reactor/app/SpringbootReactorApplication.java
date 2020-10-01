@@ -26,7 +26,21 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		// iterableFlux();
 		// flatmatExample();
-		flatmatFromUserToString();
+		// flatmatFromUserToString();
+		collectMonoWithInnerList();
+	}
+
+	public void collectMonoWithInnerList() {
+		String names[] = {"Eimer Castro", "Alejandra Marin", "Manuel Castro", "Luisa Hincapie", "Duvan Castro", "Bruce Lee", "Bruce Willis"};
+		List<User> namesList = Arrays.stream(names)
+			.map(name -> new User(name.split(" ")[0].toUpperCase(), name.split(" ")[1].toUpperCase()))
+			.collect(Collectors.toList());
+
+		Flux.fromIterable(namesList)
+			.collectList()
+			.subscribe(list -> {
+				list.forEach(user -> LOGGER.info(user.toString()));
+			});
 	}
 
 	public void flatmatFromUserToString() throws Exception {
