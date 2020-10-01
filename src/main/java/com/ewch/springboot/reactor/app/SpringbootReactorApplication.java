@@ -20,9 +20,9 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		String names[] = {"Eimer Castro", "Alejandra Marin", "Manuel Castro", "Luisa Hincapie", "Duvan Castro", "Bruce Lee", "Bruce Willis"};
-		Flux<User> namesStream = Flux.just(names)
+		Flux<String> namesStream = Flux.just(names);
 			// Using map operator to convert a String in a User object
-			.map(name -> new User(name.split(" ")[0].toUpperCase(), name.split(" ")[1].toUpperCase()))
+		Flux<User> users = namesStream.map(name -> new User(name.split(" ")[0].toUpperCase(), name.split(" ")[1].toUpperCase()))
 			// Using filter operator to get users with a pattern
 			.filter(user -> user.getFirstName().equalsIgnoreCase("Bruce"))
 			.doOnNext(user -> {
@@ -37,7 +37,18 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 				return user;
 				});
 
+		// Subscribing namesStream because observables are immutable. To get a new data it's important create a new object.
 		namesStream.subscribe(
+			// Main method  to execute in callback
+			user -> LOGGER.info(user.toString()),
+			// Error handler
+			error -> LOGGER.error(error.getMessage()),
+			// onComplete method to execute when callback finishes
+			() -> LOGGER.info("Execution has finished successfully!")
+		);
+
+		// Subscribing users because observables are immutable. To get a new data it's important create a new object.
+		users.subscribe(
 			// Main method  to execute in callback
 			user -> LOGGER.info(user.toString()),
 			// Error handler
