@@ -11,6 +11,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -41,7 +43,54 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 		// interval();
 		// delayElements();
 		// infiniteInterval();
-		infiniteIntervalFromCreate();
+		// infiniteIntervalFromCreate();
+		// manualBackPressure();
+		backPressure();
+	}
+
+	public void backPressure() {
+		Flux.range(1, 10)
+			.log()
+			.limitRate(5)
+			.subscribe();
+	}
+
+	public void manualBackPressure() {
+		Flux.range(1, 10)
+			.log()
+			.subscribe(new Subscriber<Integer>() {
+
+				private Subscription s;
+				private Integer limit = 5;
+				private Integer consumed = 0;
+
+				@Override
+				public void onSubscribe(Subscription s) {
+					this.s = s;
+					// s.request(Long.MAX_VALUE);
+					s.request(limit);
+				}
+
+				@Override
+				public void onNext(Integer integer) {
+					LOGGER.info(integer.toString());
+					consumed++;
+					if (consumed == limit) {
+						consumed = 0;
+						s.request(limit);
+					}
+				}
+
+				@Override
+				public void onError(Throwable t) {
+
+				}
+
+				@Override
+				public void onComplete() {
+
+				}
+			});
 	}
 
 	public void infiniteIntervalFromCreate() {
