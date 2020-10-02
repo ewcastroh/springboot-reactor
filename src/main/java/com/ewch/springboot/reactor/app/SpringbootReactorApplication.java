@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,27 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 		// zipWithUserCommentWay2();
 		// zipWithRange();
 		// interval();
-		delayElements();
+		// delayElements();
+		infiniteInterval();
+	}
+
+	public void infiniteInterval() throws InterruptedException {
+		CountDownLatch countDownLatch = new CountDownLatch(1);
+
+		Flux.interval(Duration.ofSeconds(1))
+			.doOnTerminate(countDownLatch::countDown)
+			.flatMap(i -> {
+				if (i >= 5) {
+					return Flux.error(new InterruptedException("Count only until 5"));
+				}
+				return Flux.just(i);
+			})
+			.map(second -> "Hi in second " + second)
+			.retry(2)
+			// .doOnNext(LOGGER::info)
+			.subscribe(LOGGER::info, error -> LOGGER.error(error.getMessage()));
+
+		countDownLatch.await();
 	}
 
 	public void delayElements() throws InterruptedException {
