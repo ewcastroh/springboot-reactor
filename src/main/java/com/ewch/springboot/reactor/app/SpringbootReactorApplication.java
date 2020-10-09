@@ -294,6 +294,7 @@ public class SpringbootReactorApplication implements CommandLineRunner {
 		List<String> namesList = new ArrayList<String>(Arrays.asList(names));
 
 		// Flux<String> namesStream = Flux.just(names);
+		// Flux<String> namesStream = Flux.fromArray(names);
 		Flux<String> namesStream = Flux.fromIterable(namesList);
 
 		// Using map operator to convert a String in a User object
